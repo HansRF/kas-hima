@@ -622,6 +622,11 @@
       }
 
       function renderAdminTable(data = database) {
+        // SORT BERDASARKAN NAMA A-Z
+        data = [...data].sort((a, b) =>
+          a.Nama.localeCompare(b.Nama, "id", { sensitivity: "base" }),
+        );
+
         buildAdminHeaders();
 
         const tbody = document.getElementById("admin-table-body");
