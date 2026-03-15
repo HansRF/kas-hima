@@ -1,0 +1,783 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal Kas Himpunan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="style.css" rel="stylesheet" />
+  </head>
+  <body class="text-slate-800 min-h-screen flex flex-col relative">
+    <!-- VIEW 1: LANDING PAGE -->
+    <div id="view-landing" class="flex-1 flex items-center justify-center p-4">
+      <div class="w-full max-w-md glass-card p-8 rounded-2xl text-center">
+        <div
+          class="w-20 h-20 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner"
+        >
+          <i data-lucide="wallet" class="w-10 h-10"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-slate-900 mb-2">
+          Portal Kas Himpunan
+        </h1>
+        <p class="text-slate-500 mb-8">
+          Pilih jalur masuk Anda untuk melanjutkan
+        </p>
+
+        <div class="space-y-4">
+          <button
+            onclick="switchView('view-login-user')"
+            class="w-full group relative flex items-center justify-center gap-3 bg-white border-2 border-indigo-100 hover:border-indigo-600 hover:bg-indigo-50 text-indigo-700 p-4 rounded-xl font-semibold transition-all duration-300"
+          >
+            <i
+              data-lucide="user"
+              class="w-5 h-5 group-hover:scale-110 transition-transform"
+            ></i>
+            Anggota Himpunan
+          </button>
+          <button
+            onclick="switchView('view-login-admin')"
+            class="w-full group relative flex items-center justify-center gap-3 bg-slate-900 hover:bg-slate-800 text-white p-4 rounded-xl font-semibold transition-all duration-300 shadow-md"
+          >
+            <i
+              data-lucide="shield-check"
+              class="w-5 h-5 group-hover:scale-110 transition-transform text-indigo-400"
+            ></i>
+            Bendahara
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: LOGIN USER -->
+    <div
+      id="view-login-user"
+      class="hidden flex-1 flex items-center justify-center p-4"
+    >
+      <div class="w-full max-w-md glass-card p-8 rounded-2xl">
+        <button
+          onclick="switchView('view-landing')"
+          class="text-slate-400 hover:text-slate-700 mb-6 flex items-center gap-2 text-sm transition-colors"
+        >
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+        </button>
+        <h2 class="text-2xl font-bold mb-2">Cek Kas Kamu</h2>
+        <p class="text-slate-500 text-sm mb-6">
+          Masukkan NIM yang terdaftar di himpunan.
+        </p>
+
+        <input
+          type="text"
+          id="nim-input"
+          class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none mb-4 transition-all"
+          placeholder="Contoh: 51240048"
+          onkeypress="if (event.key === 'Enter') loginUser();"
+        />
+
+        <p
+          id="user-error"
+          class="text-red-500 text-sm hidden mb-4 flex items-center gap-1"
+        >
+          <i data-lucide="alert-circle" class="w-4 h-4"></i> NIM tidak
+          ditemukan.
+        </p>
+
+        <button
+          onclick="loginUser()"
+          class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-xl transition-colors shadow-md"
+        >
+          Cari Data
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 3: LOGIN ADMIN -->
+    <div
+      id="view-login-admin"
+      class="hidden flex-1 flex items-center justify-center p-4"
+    >
+      <div class="w-full max-w-md glass-card p-8 rounded-2xl">
+        <button
+          onclick="switchView('view-landing')"
+          class="text-slate-400 hover:text-slate-700 mb-6 flex items-center gap-2 text-sm transition-colors"
+        >
+          <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
+        </button>
+        <h2 class="text-2xl font-bold mb-2 text-slate-900">Akses Brankas</h2>
+        <p class="text-slate-500 text-sm mb-6">Masukkan Password Bendahara.</p>
+
+        <input
+          type="password"
+          id="pin-input"
+          class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none mb-4 font-mono transition-all text-center tracking-widest text-lg"
+          placeholder="••••••••"
+          onkeypress="if (event.key === 'Enter') loginAdmin();"
+        />
+
+        <p
+          id="admin-error"
+          class="text-red-500 text-sm hidden mb-4 flex items-center gap-1 justify-center"
+        >
+          <i data-lucide="alert-circle" class="w-4 h-4"></i> Password Salah!
+        </p>
+
+        <button
+          onclick="loginAdmin()"
+          class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-4 rounded-xl transition-colors shadow-md flex items-center justify-center gap-2"
+        >
+          <i data-lucide="lock-open" class="w-5 h-5"></i> Buka Data
+        </button>
+      </div>
+    </div>
+
+    <!-- VIEW 4: DASHBOARD USER -->
+    <div
+      id="view-dashboard-user"
+      class="hidden flex-1 p-4 flex justify-center items-start pt-10"
+    >
+      <div
+        class="w-full max-w-2xl glass-card rounded-2xl overflow-hidden shadow-lg"
+      >
+        <div class="bg-indigo-600 p-6 text-white relative">
+          <button
+            onclick="switchView('view-landing')"
+            class="absolute top-4 left-4 text-indigo-200 hover:text-white transition-colors"
+          >
+            <i data-lucide="log-out" class="w-5 h-5"></i>
+          </button>
+          <div class="text-center">
+            <h2
+              id="user-name"
+              class="text-xl font-bold tracking-tight uppercase"
+            >
+              NAMA
+            </h2>
+            <p id="user-nim" class="text-indigo-200 text-sm font-mono mt-1">
+              NIM
+            </p>
+          </div>
+        </div>
+
+        <div
+          class="grid grid-cols-2 gap-4 p-6 bg-slate-50 border-b border-slate-100"
+        >
+          <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center"
+          >
+            <p
+              class="text-xs text-slate-500 font-medium mb-1 uppercase tracking-wider"
+            >
+              Total Lunas
+            </p>
+            <p id="user-total-paid" class="text-2xl font-bold text-green-600">
+              Rp 0
+            </p>
+          </div>
+          <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm text-center"
+          >
+            <p
+              class="text-xs text-slate-500 font-medium mb-1 uppercase tracking-wider"
+            >
+              Tunggakan
+            </p>
+            <p id="user-total-debt" class="text-2xl font-bold text-red-600">
+              Rp 0
+            </p>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr
+                class="bg-slate-100 text-slate-500 text-xs uppercase tracking-wider"
+              >
+                <th class="p-4 font-semibold border-b border-slate-200">
+                  Bulan
+                </th>
+                <th
+                  class="p-4 font-semibold border-b border-slate-200 text-right"
+                >
+                  Nominal
+                </th>
+                <th
+                  class="p-4 font-semibold border-b border-slate-200 text-center"
+                >
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody
+              id="user-table-body"
+              class="divide-y divide-slate-100 bg-white text-sm"
+            >
+              <!-- User rows injected here -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 5: DASHBOARD ADMIN -->
+    <div
+      id="view-dashboard-admin"
+      class="hidden flex-1 flex-col h-screen overflow-hidden"
+    >
+      <header class="bg-slate-900 text-white p-4 flex-shrink-0 shadow-lg z-20">
+        <div
+          class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4"
+        >
+          <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 p-2 rounded-lg">
+              <i data-lucide="database" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+              <h1 class="text-lg font-bold">Brankas Bendahara</h1>
+              <p class="text-slate-400 text-xs">
+                Periode: Mei 2025 - Februari 2026
+              </p>
+            </div>
+          </div>
+
+          <div class="flex gap-3 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-64">
+              <i
+                data-lucide="search"
+                class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400"
+              ></i>
+              <input
+                type="text"
+                id="search-input"
+                oninput="filterAdminTable()"
+                placeholder="Cari nama/NIM..."
+                class="w-full pl-9 pr-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 transition-colors"
+              />
+            </div>
+            <button
+              onclick="switchView('view-landing')"
+              class="px-4 py-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/20 rounded-lg transition-colors text-sm font-medium flex items-center gap-2"
+              title="Keluar"
+            >
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              <span class="hidden sm:inline">Tutup Brankas</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main
+        class="flex-1 overflow-hidden p-4 max-w-full mx-auto w-full flex flex-col gap-4"
+      >
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 flex-shrink-0">
+          <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-blue-500"
+          >
+            <p
+              class="text-xs text-slate-500 uppercase font-bold tracking-wider"
+            >
+              Total Anggota
+            </p>
+            <p class="text-2xl font-black text-slate-800 mt-1" id="stat-mhs">
+              0
+            </p>
+          </div>
+          <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-green-500"
+          >
+            <p
+              class="text-xs text-slate-500 uppercase font-bold tracking-wider"
+            >
+              Kas Terkumpul
+            </p>
+            <p class="text-xl font-black text-slate-800 mt-1" id="stat-masuk">
+              Rp 0
+            </p>
+          </div>
+          <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-red-500"
+          >
+            <p
+              class="text-xs text-slate-500 uppercase font-bold tracking-wider"
+            >
+              Total Nunggak
+            </p>
+            <p class="text-xl font-black text-slate-800 mt-1" id="stat-nunggak">
+              Rp 0
+            </p>
+          </div>
+          <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm border-t-4 border-t-indigo-500"
+          >
+            <p
+              class="text-xs text-slate-500 uppercase font-bold tracking-wider"
+            >
+              Target Kas
+            </p>
+            <p class="text-xl font-black text-slate-800 mt-1" id="stat-target">
+              Rp 0
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow mb-4">
+          <h2 class="font-semibold mb-3">Tambah Anggota</h2>
+
+          <div class="flex gap-2">
+            <input
+              id="input-nama"
+              type="text"
+              placeholder="Nama"
+              class="border p-2 rounded w-full"
+            />
+
+            <input
+              id="input-nim"
+              type="text"
+              placeholder="NIM"
+              class="border p-2 rounded w-full"
+            />
+
+            <button
+              onclick="tambahAnggota()"
+              class="bg-blue-600 text-white px-4 rounded"
+            >
+              Tambah
+            </button>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div
+          class="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 flex flex-col overflow-hidden relative"
+        >
+          <div class="overflow-auto flex-1 h-full">
+            <table
+              class="w-full text-left border-collapse text-sm whitespace-nowrap"
+            >
+              <thead
+                class="bg-slate-50 text-slate-600 font-semibold uppercase text-xs tracking-wider"
+                id="admin-table-head"
+              >
+                <!-- Injected via JS -->
+              </thead>
+              <tbody id="admin-table-body" class="divide-y divide-slate-100">
+                <!-- Injected via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import {
+        getFirestore,
+        collection,
+        getDocs,
+        doc,
+        getDoc,
+        updateDoc,
+        addDoc,
+        setDoc,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyAV68yX7T-yvf9JyUREwZ7uNrZXFWf0M1E",
+        authDomain: "kas-organisasi-845c9.firebaseapp.com",
+        projectId: "kas-organisasi-845c9",
+        storageBucket: "kas-organisasi-845c9.firebasestorage.app",
+        messagingSenderId: "393743400981",
+        appId: "1:393743400981:web:4524d4a79a4964027f8e1c",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      window.db = db;
+      window.collection = collection;
+      window.getDocs = getDocs;
+      window.doc = doc;
+      window.getDoc = getDoc;
+      window.setDoc = setDoc;
+      window.updateDoc = updateDoc;
+      window.addDoc = addDoc;
+    </script>
+
+    <!-- CORE LOGIC -->
+    <script>
+      lucide.createIcons();
+
+      const TARGET_PER_BULAN = 20000;
+
+      const BULAN_LIST = [
+        "MEI 2025",
+        "JUNI 2025",
+        "JULI 2025",
+        "AGUSTUS 2025",
+        "SEPTEMBER 2025",
+        "OKTOBER 2025",
+        "NOVEMBER 2025",
+        "DESEMBER 2025",
+        "JANUARI 2026",
+        "FEBRUARI 2026",
+      ];
+
+      let database = [];
+
+      const formatRp = (angka) => {
+        if (angka === 0) return "Rp 0";
+        return new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        }).format(angka);
+      };
+
+      function switchView(viewId) {
+        const views = [
+          "view-landing",
+          "view-login-user",
+          "view-login-admin",
+          "view-dashboard-user",
+          "view-dashboard-admin",
+        ];
+
+        views.forEach((v) =>
+          document.getElementById(v).classList.add("hidden"),
+        );
+
+        document.getElementById("nim-input").value = "";
+        document.getElementById("pin-input").value = "";
+
+        document.getElementById("user-error").classList.add("hidden");
+        document.getElementById("admin-error").classList.add("hidden");
+
+        document.getElementById(viewId).classList.remove("hidden");
+
+        if (viewId === "view-dashboard-admin") {
+          document.getElementById("search-input").value = "";
+          renderAdminTable();
+        }
+      }
+
+      async function loadDatabase() {
+        const snapshot = await getDocs(collection(db, "kas"));
+
+        database = [];
+
+        snapshot.forEach((docSnap) => {
+          database.push({
+            id: docSnap.id,
+            ...docSnap.data(),
+          });
+        });
+
+        console.log("Database loaded:", database);
+      }
+
+      window.addEventListener("load", loadDatabase);
+
+      async function loginUser() {
+        if (database.length === 0) {
+          await loadDatabase();
+        }
+
+        const nim = document.getElementById("nim-input").value.trim();
+
+        const record = database.find(
+          (row) => String(row.NIM).trim() === String(nim),
+        );
+
+        if (!record) {
+          Swal.fire({
+            icon: "error",
+            title: "NIM Tidak Ditemukan",
+            text: "Pastikan NIM yang dimasukkan benar.",
+            confirmButtonColor: "#4f46e5",
+          });
+          return;
+        }
+
+        renderUserDashboard(record);
+        switchView("view-dashboard-user");
+      }
+      function renderUserDashboard(record) {
+        document.getElementById("user-name").textContent = record.Nama;
+        document.getElementById("user-nim").textContent = record.NIM;
+
+        const tbody = document.getElementById("user-table-body");
+        tbody.innerHTML = "";
+
+        let totalPaid = 0;
+        let totalDebt = 0;
+
+        BULAN_LIST.forEach((bulan) => {
+          const nominal = record[bulan] || 0;
+
+          let statusHtml = "";
+
+          if (nominal >= TARGET_PER_BULAN) {
+            statusHtml =
+              '<span class="inline-flex px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">Lunas</span>';
+            totalPaid += nominal;
+          } else if (nominal > 0) {
+            statusHtml =
+              '<span class="inline-flex px-2 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-700">Kurang</span>';
+            totalPaid += nominal;
+            totalDebt += TARGET_PER_BULAN - nominal;
+          } else {
+            statusHtml =
+              '<span class="inline-flex px-2 py-1 rounded-full text-xs font-bold bg-red-100 text-red-700">Belum</span>';
+            totalDebt += TARGET_PER_BULAN;
+          }
+
+          tbody.innerHTML += `
+<tr class="hover:bg-slate-50">
+<td class="p-4 font-medium text-slate-800">${bulan}</td>
+<td class="p-4 font-mono text-slate-600 text-right">${formatRp(nominal)}</td>
+<td class="p-4 text-center">${statusHtml}</td>
+</tr>
+`;
+        });
+
+        document.getElementById("user-total-paid").textContent =
+          formatRp(totalPaid);
+        document.getElementById("user-total-debt").textContent =
+          formatRp(totalDebt);
+      }
+
+      async function loginAdmin() {
+        const pinInput = document.getElementById("pin-input").value;
+
+        try {
+          const ref = doc(db, "admin", "bendahara");
+          const snap = await getDoc(ref);
+
+          if (!snap.exists()) {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "Data admin tidak ditemukan",
+            });
+            return;
+          }
+
+          const data = snap.data();
+          const pinFirebase = data.pin;
+
+          if (pinInput === pinFirebase) {
+            Swal.fire({
+              icon: "success",
+              title: "Login Berhasil",
+              text: "Selamat datang Bendahara",
+              timer: 1200,
+              showConfirmButton: false,
+            });
+
+            setTimeout(() => {
+              switchView("view-dashboard-admin");
+            }, 1200);
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Password Salah",
+              text: "Silakan coba lagi.",
+            });
+            document.getElementById("pin-input").value = "";
+          }
+        } catch (err) {
+          console.error(err);
+          Swal.fire({
+            icon: "error",
+            title: "Login Gagal",
+            text: "Tidak bisa memverifikasi admin",
+          });
+        }
+      }
+      function buildAdminHeaders() {
+        const thead = document.getElementById("admin-table-head");
+
+        let html = `
+<tr>
+<th class="p-4 bg-slate-100 border-b">No</th>
+<th class="p-4 bg-slate-100 border-b">NIM</th>
+<th class="p-4 bg-slate-100 border-b">Nama</th>
+`;
+
+        BULAN_LIST.forEach((b) => {
+          html += `<th class="p-4 bg-slate-100 border-b text-center">${b}</th>`;
+        });
+
+        html += `
+<th class="p-4 bg-blue-50 border-b text-right">Terkumpul</th>
+<th class="p-4 bg-red-50 border-b text-right">Nunggak</th>
+</tr>
+`;
+
+        thead.innerHTML = html;
+      }
+
+      function renderAdminTable(data = database) {
+        buildAdminHeaders();
+
+        const tbody = document.getElementById("admin-table-body");
+        tbody.innerHTML = "";
+
+        let globalMasuk = 0;
+        let globalNunggak = 0;
+
+        data.forEach((row, i) => {
+          let html = `
+<tr>
+<td class="p-4">${i + 1}</td>
+<td class="p-4 font-mono">${row.NIM}</td>
+<td class="p-4 font-medium">${row.Nama}</td>
+`;
+
+          let personalBayar = 0;
+          let personalNunggak = 0;
+
+          BULAN_LIST.forEach((bulan) => {
+            const nominal = row[bulan] || 0;
+
+            personalBayar += nominal;
+
+            html += `
+<td class="p-2 text-center">
+<input
+type="number"
+value="${nominal}"
+class="w-20 border rounded text-center"
+onchange="updateKas('${row.id}','${bulan}',this.value)"
+>
+</td>
+`;
+
+            if (nominal < TARGET_PER_BULAN) {
+              personalNunggak += TARGET_PER_BULAN - nominal;
+            }
+          });
+
+          globalMasuk += personalBayar;
+          globalNunggak += personalNunggak;
+
+          html += `
+<td class="p-4 text-right font-bold text-blue-600">${formatRp(
+            personalBayar,
+          )}</td>
+<td class="p-4 text-right font-bold text-red-600">${formatRp(
+            personalNunggak,
+          )}</td>
+</tr>
+`;
+
+          tbody.innerHTML += html;
+        });
+
+        document.getElementById("stat-mhs").textContent = data.length;
+        document.getElementById("stat-masuk").textContent =
+          formatRp(globalMasuk);
+        document.getElementById("stat-nunggak").textContent =
+          formatRp(globalNunggak);
+        document.getElementById("stat-target").textContent = formatRp(
+          data.length * BULAN_LIST.length * TARGET_PER_BULAN,
+        );
+      }
+
+      async function updateKas(id, bulan, value) {
+        const ref = doc(db, "kas", id);
+
+        await updateDoc(ref, {
+          [bulan]: Number(value),
+        });
+
+        const index = database.findIndex((x) => x.id === id);
+        database[index][bulan] = Number(value);
+
+        renderAdminTable();
+      }
+
+      async function tambahAnggota() {
+        const nama = document.getElementById("input-nama").value.trim();
+        const nim = document.getElementById("input-nim").value.trim();
+
+        if (!nama || !nim) {
+          Swal.fire({
+            icon: "warning",
+            title: "Data belum lengkap",
+            text: "Nama dan NIM harus diisi",
+          });
+          return;
+        }
+
+        const sudahAda = database.find((x) => x.NIM === nim);
+
+        if (sudahAda) {
+          Swal.fire({
+            icon: "warning",
+            title: "NIM sudah ada",
+            text: "Anggota dengan NIM ini sudah terdaftar",
+          });
+          return;
+        }
+
+        try {
+          let dataBaru = {
+            Nama: nama,
+            NIM: nim,
+          };
+
+          BULAN_LIST.forEach((bulan) => {
+            dataBaru[bulan] = 0;
+          });
+
+          // 🔥 Document ID = NIM
+          const ref = doc(db, "kas", nim);
+
+          await setDoc(ref, dataBaru);
+
+          database.push({
+            id: nim,
+            ...dataBaru,
+          });
+
+          renderAdminTable();
+
+          document.getElementById("input-nama").value = "";
+          document.getElementById("input-nim").value = "";
+
+          Swal.fire({
+            icon: "success",
+            title: "Berhasil",
+            text: "Anggota berhasil ditambahkan",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+        } catch (error) {
+          console.error(error);
+          Swal.fire({
+            icon: "error",
+            title: "Gagal",
+            text: "Tidak bisa menambah anggota",
+          });
+        }
+      }
+      function filterAdminTable() {
+        const query = document
+          .getElementById("search-input")
+          .value.toLowerCase();
+
+        const filtered = database.filter(
+          (item) =>
+            item.Nama.toLowerCase().includes(query) || item.NIM.includes(query),
+        );
+
+        renderAdminTable(filtered);
+      }
+    </script>
+  </body>
+</html>
