@@ -448,6 +448,7 @@
                   <th class="p-3 w-40 text-left">Tanggal</th>
                   <th class="p-3 text-left">Keterangan</th>
                   <th class="p-3 w-40 text-right">Jumlah</th>
+                  <th class="p-3 w-20 text-center">Aksi</th>
                 </tr>
               </thead>
 
@@ -503,6 +504,7 @@
                   <th class="p-3 w-40 text-left">Tanggal</th>
                   <th class="p-3 text-left">Keterangan</th>
                   <th class="p-3 w-40 text-right">Jumlah</th>
+                  <th class="p-3 w-20 text-center">Aksi</th>
                 </tr>
               </thead>
 
@@ -527,6 +529,7 @@
         updateDoc,
         addDoc,
         setDoc,
+        deleteDoc,
       } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -549,6 +552,7 @@
       window.setDoc = setDoc;
       window.updateDoc = updateDoc;
       window.addDoc = addDoc;
+      window.deleteDoc = deleteDoc;
     </script>
 
     <!-- CORE LOGIC -->
@@ -801,6 +805,8 @@
 <td class="p-2 text-center">
 <input
 type="number"
+min="0"
+max="20000"
 value="${nominal}"
 class="w-20 border rounded text-center"
 onchange="updateKas('${row.id}','${bulan}',this.value)"
@@ -840,10 +846,14 @@ onchange="updateKas('${row.id}','${bulan}',this.value)"
       }
 
       async function updateKas(id, bulan, value) {
+        let baru = Number(value);
+
+        if (baru < 0) baru = 0;
+        if (baru > 20000) baru = 20000;
+
         const ref = doc(db, "kas", id);
 
         const lama = database.find((x) => x.id === id)[bulan] || 0;
-        const baru = Number(value);
 
         await updateDoc(ref, {
           [bulan]: baru,
@@ -1020,6 +1030,14 @@ onchange="updateKas('${row.id}','${bulan}',this.value)"
 <td class="p-3">${tanggal}</td>
 <td class="p-3">${data.keterangan}</td>
 <td class="p-3 text-right font-semibold text-green-600">${formatRp(data.jumlah)}</td>
+
+<td class="p-3 text-center">
+<button onclick="hapusPemasukan('${docSnap.id}')"
+class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
+Hapus
+</button>
+</td>
+
 </tr>
 `;
         });
@@ -1067,9 +1085,24 @@ onchange="updateKas('${row.id}','${bulan}',this.value)"
 
           tbody.innerHTML += `
 <tr class="hover:bg-slate-50 transition">
+
 <td class="p-3 text-slate-600">${tanggal}</td>
-<td class="p-3 font-medium">${data.keterangan}</td>
-<td class="p-3 text-right font-semibold text-red-600">${formatRp(data.jumlah)}</td>
+
+<td class="p-3 font-medium">
+${data.keterangan}
+</td>
+
+<td class="p-3 text-right font-semibold text-red-600">
+${formatRp(data.jumlah)}
+</td>
+
+<td class="p-3 text-center">
+<button onclick="hapusPengeluaran('${docSnap.id}')"
+class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs">
+Hapus
+</button>
+</td>
+
 </tr>
 `;
         });
@@ -1084,15 +1117,19 @@ onchange="updateKas('${row.id}','${bulan}',this.value)"
           });
         });
 
-        // total pemasukan tambahan
+        // hanya pemasukan manual
         const snapMasuk = await getDocs(collection(db, "pemasukan"));
-        let pemasukan = 0;
+        let pemasukanManual = 0;
 
         snapMasuk.forEach((docSnap) => {
-          pemasukan += docSnap.data().jumlah || 0;
+          const data = docSnap.data();
+
+          // skip pemasukan dari kas anggota
+          if (!data.keterangan.startsWith("Kas Anggota")) {
+            pemasukanManual += data.jumlah || 0;
+          }
         });
 
-        // total pengeluaran
         const snapKeluar = await getDocs(collection(db, "pengeluaran"));
         let pengeluaran = 0;
 
@@ -1100,7 +1137,45 @@ onchange="updateKas('${row.id}','${bulan}',this.value)"
           pengeluaran += docSnap.data().jumlah || 0;
         });
 
-        return kasAnggota + pemasukan - pengeluaran;
+        return kasAnggota + pemasukanManual - pengeluaran;
+      }
+
+      async function hapusPemasukan(id) {
+        const konfirmasi = await Swal.fire({
+          title: "Hapus transaksi?",
+          text: "Data pemasukan akan dihapus",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Hapus",
+          cancelButtonText: "Batal",
+        });
+
+        if (!konfirmasi.isConfirmed) return;
+
+        await deleteDoc(doc(db, "pemasukan", id));
+
+        Swal.fire("Terhapus", "Transaksi berhasil dihapus", "success");
+
+        loadPemasukan();
+      }
+
+      async function hapusPengeluaran(id) {
+        const konfirmasi = await Swal.fire({
+          title: "Hapus transaksi?",
+          text: "Data pengeluaran akan dihapus",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "Hapus",
+          cancelButtonText: "Batal",
+        });
+
+        if (!konfirmasi.isConfirmed) return;
+
+        await deleteDoc(doc(db, "pengeluaran", id));
+
+        Swal.fire("Terhapus", "Transaksi berhasil dihapus", "success");
+
+        loadPengeluaran();
       }
     </script>
   </body>
